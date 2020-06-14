@@ -1,0 +1,50 @@
+version: '2'
+services:
+  tasks-server-container:
+    image: machine-learning:latest
+    command: up
+    environment:
+      - PYTHONUNBUFFERED=0
+      - BI_MYSQL_HOST=mysql-server-container
+      - BI_MYSQL_PORT=3306
+      - BI_MYSQL_USER=root
+      - BI_MYSQL_PASS=
+      - BI_MYSQL_DB=bi_da
+      - THRIFT_HOST=thrift-server-container
+#    env_file:
+#      - local.env
+    volumes:
+      - ..:/usr/src/app
+      - ~/machine-learning/data:/usr/src/app/pickles
+
+  thrift-server-container:
+    image: machine-learning:latest
+    command: up-thrift-only
+    environment:
+      - PYTHONUNBUFFERED=0
+      - REDIS_HOST=redis-server-container
+#    env_file:
+#      - local.env
+    ports:
+      - 9090:9090
+    volumes:
+      - ..:/usr/src/app
+      - ~/machine-learning/data:/usr/src/app/pickles
+    cpu_shares: 100
+    mem_limit: 3221225472
+
+  mysql-server-container:
+    image: mysql:5.6
+    ports:
+      - 13306:3306
+    volumes:
+      - ../mysql/5.6:/var/lib/mysql
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+
+  redis-server-container:
+    image: redis:5-32bit
+    ports:
+      - 6379:6379
+    volumes:
+      - ../redis/5-3.2bit:/data
