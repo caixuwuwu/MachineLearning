@@ -6,19 +6,11 @@ services:
       dockerfile: base/Dockerfile
     image: machine-learning-base
 
-  build-model:
-    build:
-      context: .
-      dockerfile: model/Dockerfile
-    image: machine-learning-model
-    depends_on:
-      - build-base
-
   build-ml:
     build:
       context: ..
       dockerfile: Docker/Dockerfile
     image: machine-learning
     depends_on: 
-      - build-model
+      - build-base
     command: is_built

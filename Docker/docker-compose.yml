@@ -5,12 +5,9 @@ services:
     command: up
     environment:
       - PYTHONUNBUFFERED=0
-      - BI_MYSQL_HOST=mysql-server-container
-      - BI_MYSQL_PORT=3306
-      - BI_MYSQL_USER=root
-      - BI_MYSQL_PASS=
+      - PYTHONPATH=/usr/src/app
+      - MYSQL_ADDR=root:123456@mysql-server-container:3306
       - BI_MYSQL_DB=bi_da
-      - THRIFT_HOST=thrift-server-container
 #    env_file:
 #      - local.env
     volumes:
@@ -26,7 +23,7 @@ services:
 #    env_file:
 #      - local.env
     ports:
-      - 9090:9090
+      - 9001:9001
     volumes:
       - ..:/usr/src/app
       - ~/machine-learning/data:/usr/src/app/pickles

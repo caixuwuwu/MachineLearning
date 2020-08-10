@@ -5,19 +5,9 @@ services:
     command: python -m utest.test_suite
     environment:
        - PYTHONPATH=/usr/src/app
-    #   - PYTHONUNBUFFERED=0
-    #   - BI_MYSQL_HOST=mysql-server-container
-    #   - BI_MYSQL_PORT=3306
-    #   - BI_MYSQL_USER=root
-    #   - BI_MYSQL_PASS=
-    #   - BI_MYSQL_DB=bi_da
-    #   - WEB_HOST=web-server-container
-    #   - THRIFT_HOST=thrift-server-container
-    #   - REDIS_HOST=redis-server-container
     env_file:
       - local.env
     # ports:
-    #   - 8000:8000
     #   - 8001:8001
       # - 9090:9090
     volumes:
