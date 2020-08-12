@@ -1,56 +1,38 @@
 #!/usr/bin/python
 # coding:utf-8
 # Copyright (C) 2005-2018 All rights reserved.
-# FILENAME: 	 data_api_client.py
+# FILENAME: 	 DataApi.py
 # VERSION: 	 1.0
 # CREATED: 	 2018-02-13 15:19
 # AUTHOR: 	 caixuwu@outlook.com
 # DESCRIPTION:
-#
+#   Contains HTTP-Client specific to Data-API
 # HISTORY:
 # *************************************************************
-"""Contains HTTP-Client specific to Data-API"""
 import sys
 import json
 from pandas.io.json import json_normalize
+
+from client.BaseClient import BaseClient
 from configs.ConfManage import ConfManage
 from helpers.caster import remove_none
-import pandas as pd
-from helpers.simple_http_client import SimpleHttpClient
+from client.SimpleHttpClient import SimpleHttpClient
 from helpers.timer import dataApiTimeFmt
-from helpers.cache import Cache
 
 if sys.version_info[:2] in [(2, 6), (2, 7)]:  # Python 2.7
-    from urllib import urlencode
-
     reload(sys)
     sys.setdefaultencoding('utf-8')
 elif sys.version_info[:2] in [(3, 6), (3, 7)]:  # Python 3.6
     # pylint: disable=E0401, E0611, E1101
     import importlib
-    from urllib.parse import urlencode
-
     importlib.reload(sys)
 
 
-class DataApiClient(object):
+class DataApi(BaseClient):
     """HTTP-Connection with Data-API"""
 
     def __init__(self):
-        self.cache = Cache().client
         self.client = SimpleHttpClient(ConfManage.getString("DATA_API_ENDPOINT"), use_ssl=False)
-
-    # When a method is not found, shortcuts it to a SimpleHttpClient instance's Method
-    def __getattr__(self, name):
-        return getattr(self.client, name)
-
-    def get_cache_data(self, **kwargs):
-        data = self.cache.get(kwargs["topic"])
-        if data == None:
-            data = self.get_data(**kwargs).to_json()
-            self.cache.set(kwargs["topic"], data)
-        data = pd.read_json(data)
-        return data
 
     def get_data(self, table, topic, start_time=None, end_time=None, columns=None, record_path=None, meta=None,
                  timeout=10., **kwargs):

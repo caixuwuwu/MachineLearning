@@ -10,7 +10,7 @@
 import unittest
 import pandas as pd
 
-from apis.hbase_client import HbaseClient
+from client.HBaseClient import HbaseClient
 
 
 class HbaseApiTest(unittest.TestCase):

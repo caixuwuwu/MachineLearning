@@ -15,27 +15,17 @@ import argparse
 import sys
 import pandas as pd
 import traceback
-import numpy as np
-from copy import deepcopy
-from pickles import text_team
 
-from apis.api_client import ApiClient
+from client.api_client import ApiClient
 from configs.ConfManage import ConfManage
-from apis.osrm_api_client import OsrmApiClient
+from client.OsrmApi import OsrmApiClient
 from helpers.logger import Logger
 from helpers.caster import chunks
 from helpers.pickler import delete_pickle, load_pickle, save_pickle
 from helpers.modeler import get_model
-from models.DbCommon import DbCommon
-from models.DbOrder import DbOrder
-from models_bi.mcd_order_detail import McdOrderDetail
-from helpers.simple_http_client import Unauthorized
-from helpers.timer import get_run_time, DATA_API_ARROW_FORMAT, LOGGABLE_ARROW_FORMAT as loggable
-from helpers.area_lookup import get_area_lookup
+from client.SimpleHttpClient import Unauthorized
+from helpers.timer import get_run_time, LOGGABLE_ARROW_FORMAT as loggable
 from helpers.parallel import multi_thread
-from helpers.eta.xgb_accept import XgbAccept
-from helpers.eta.xgb_quote import XgbQuote
-from helpers.utils import *
 
 if sys.version_info[:2] in [(2, 6), (2, 7)]:
     reload(sys)
@@ -96,8 +86,6 @@ def fetch_data(start_time, end_time, table, topic, columns=None, record_path=Non
             save_pickle(df, save_file_prefix + topic)
     logger.info('Fetch %s (Count): %d' % (topic, len(df)))
     return df
-
-
 
 
 def collect(logger, start_time, end_time, pickle_name='data'):

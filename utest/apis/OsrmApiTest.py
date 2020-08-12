@@ -11,7 +11,7 @@
 import json
 import unittest
 
-from apis.osrm_api_client import OsrmApiClient
+from client.OsrmApi import OsrmApiClient
 from configs.conf import OSRM_API_DRIVING_ROUTE, OSRM_API_WALKING_ROUTE, ZONE
 
 

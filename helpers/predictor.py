@@ -9,8 +9,8 @@ import xgboost as xgb
 
 from helpers.learner import Model
 from helpers.timer import timepiece
-from apis.api_client import ApiClient
-from apis.osrm_api_client import OsrmApiClient
+from client.api_client import ApiClient
+from client.OsrmApi import OsrmApiClient
 from configs.ConfManage import ConfManage
 from helpers.parallel import multi_thread
 from helpers.pickler import load_pickle_cache

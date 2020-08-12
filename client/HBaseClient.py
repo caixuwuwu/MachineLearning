@@ -1,11 +1,25 @@
 #!/usr/bin/python
+# coding:utf-8
+# Copyright (C) 2005-2018 All rights reserved.
+# FILENAME: 	 HBaseClient.py
+# VERSION: 	 1.0
+# CREATED: 	 2019-05-13 10:00
+# AUTHOR: 	 caixuwu@outlook.com
+# DESCRIPTION:
+#   分布式数据仓库HBase客户端功能
+# HISTORY:
+#*************************************************************
+
 import sys
 from happybase.pool import ConnectionPool
 import happybase as hb
 import hashlib
 import json
 import re
+import arrow
 from pandas import DataFrame
+
+from client.BaseClient import BaseClient
 from helpers.timer import dataApiTimeFmt, timepiece
 from helpers.logger import Logger
 from configs.ConfManage import ConfManage
@@ -66,7 +80,8 @@ class RConnectionPool(ConnectionPool):
         self._thread_connections = threading.local()
 
         connection_kwargs = kwargs
-        connection_kwargs['autoconnect'] = False
+        # 开启自动连接
+        connection_kwargs['autoconnect'] = True
 
         for i in range(size):
             connection = RConnection(**connection_kwargs)
@@ -79,9 +94,10 @@ class RConnectionPool(ConnectionPool):
             pass
 
 
-class HbaseClient(object):
+class HbaseClient(BaseClient):
 
     def __init__(self, host=ConfManage.getString("HBASE_HOST"), port=ConfManage.getInt("HBASE_PORT")):
+        self.timezone = ConfManage.getString("ARROW_TIMEZONE")
         self.host = host
         self.port = port
         # self.connection = Connection(host=self.host,port=self.port,table_prefix=ConfManage.getString("HBASE_PREFIX"))
@@ -89,19 +105,7 @@ class HbaseClient(object):
                                         # timeout=10,
                                         table_prefix=ConfManage.getString("HBASE_PREFIX"))
 
-    def get_area_rowkey(self, prefix, date, index_id=None):
-        """
-            area
-        :param prefix: "indexindex_area"+str(tablename)
-        :param index_id: area_id
-        :param date: 20190101000000
-        :return: str
-        """
-        prefix = hashlib.sha256(prefix.encode('utf-8')).hexdigest()[:16]
-        rowkey = prefix + '|' + str(sys.maxsize - date) + '|' + (str(index_id).zfill(4) if index_id is not None else '')
-        return rowkey
-
-    def get_row_key(self, prefix, date, index_id=None, fill=0):
+    def get_rowKey(self, prefix, date, index_id=None, fill=0):
         """
             生成HBase row key.
             Args:
@@ -116,29 +120,21 @@ class HbaseClient(object):
         return '{}|{}|{}'.format(
             hash_prefix,
             str(sys.maxsize - int(date)),
-            str(index_id).zfill(fill) if index_id != None else '')
+            str(index_id).zfill(fill) if index_id is not None else '')
 
-    def get_data_from_hbase(self, table, query_params):
-        results = []
-        try:
-            scan_result = table.scan(**query_params)
-        except Exception as err:
-            logger.error("HBaseError, Msg:{}".format(err))
-            raise Exception("1199:Can't collect hbase data, provenance: get_data_from_hbase")
-        for row_key, data in scan_result:
-            # 返回結果全部從byte string轉換成unicode或者float類型
-            item = {'id': self.get_row_id(row_key.decode('utf-8')),  # index_id
-                    'time': self.get_time(row_key.decode('utf-8'))}  # date
-            for key, value in data.items():
-                decoded_key = key.decode('utf-8').replace('info:', '')
-                try:
-                    item[decoded_key] = json.loads(value)
-                except ValueError:
-                    item[decoded_key] = value.replace(b'?', b'').decode('utf-8')
-            results.append(item)
-        return results
+    def get_rowKey_prefix(self, table, topic):
+        """
+            生成Hbase row key的前缀prefix.
+            Args:
+                table (str): 要查询的表.
+                topic (str): 要查询的主题.
+            Returns:
+                str: 生成的前缀.
+        """
+        prefix = 'indexindex_' + table + topic
+        return prefix
 
-    def get_row_id(self, row_key):
+    def get_rowID(self, row_key):
         """
             获取Hbase row key中的ID.
             Args:
@@ -158,31 +154,38 @@ class HbaseClient(object):
         """
         return str(sys.maxsize - int(row_key.split('|')[1]))
 
-    def get_rowkey_prefix(self, table, topic):
-        """
-            生成Hbase row key的前缀prefix.
-            Args:
-                table (str): 要查询的表.
-                topic (str): 要查询的主题.
-            Returns:
-                str: 生成的前缀.
-        """
-        prefix = 'indexindex_' + table + topic
-        return prefix
+    def get_data_from_hbase(self, table, query_params):
+        results = []
+        try:
+            scan_result = table.scan(**query_params)
+        except Exception as err:
+            logger.error("HBaseError, Msg:{}".format(err))
+            raise Exception("1199:Can't collect hbase data, provenance: get_data_from_hbase")
+        for rowKey, Data in scan_result:
+            # 返回結果全部從byte string轉換成unicode或者float類型
+            item = {'id': self.get_rowID(rowKey.decode('utf-8')),  # index_id
+                    'time': self.get_time(rowKey.decode('utf-8'))}  # date
+            for key, value in Data.items():
+                decoded_key = key.decode('utf-8').replace('info:', '')
+                try:
+                    item[decoded_key] = json.loads(value)
+                except ValueError:
+                    item[decoded_key] = value.replace(b'?', b'').decode('utf-8')
+            results.append(item)
+        return results
 
     def get_data(self, table, topic, row_id=None, start_time=None, end_time=None, columns=None, record_path=None,
-                 meta=None, timeout=None):
+                 meta=None, timeout=None, jsonNormalize=False):
         data_json = self.get_json_data(table=table, topic=topic, row_id=row_id, start_time=start_time,
                                        end_time=end_time, columns=columns, timeout=timeout)
-        return json_normalize(data_json, record_path=record_path, meta=meta, errors="ignore")
-
-    def get_df_data(self, table, topic, row_id=None, start_time=None, end_time=None, columns=None, timeout=None):
-        data_json = self.get_json_data(table=table, topic=topic, row_id=row_id, start_time=start_time,
-                                       end_time=end_time, columns=columns, timeout=timeout)
-        return pd.DataFrame(data_json)
+        if jsonNormalize and meta:
+            return json_normalize(data_json, record_path=record_path, meta=meta, errors="ignore")
+        else:
+            return DataFrame(data_json)
 
     @timepiece(msg=1)
-    def get_json_data(self, table, topic, row_id=None, start_time=None, end_time=None, columns=None, timeout=None):
+    def get_json_data(self, table, topic, row_id=None, start_time=None, end_time=None, columns=None, timeout=None,
+                      cold_table=False):
         """
         该方法适用于所有的topic获取数据
         :param timeout:
@@ -192,12 +195,14 @@ class HbaseClient(object):
         :param start_time: arrow.Arrow eg:2020-02-18T00:00:00+08:00
         :param end_time: arrow.Arrow   eg:2020-02-18T00:00:00+08:00
         :param columns: list
+        :param cold_table: bool
         :return:DataFrame
         """
-        if start_time:  # TODO:后续完善这方面代码为一个功能， 冷热表切换（如果有定义时间获取数据，时间大于1年，则切换到冷表获取）
-            cold_time = arrow.now(tz=ConfManage.getString("ARROW_TIMEZONE")).shift(years=-1).format("YYYYMMDD000000")
-            if int(dataApiTimeFmt(start_time)) < int(cold_time):
-                table = table + "_cold"
+        if cold_table:
+            if start_time:
+                cold_time = arrow.now(tz=self.timezone).shift(years=-1).format("YYYYMMDD000000")
+                if int(dataApiTimeFmt(start_time)) < int(cold_time):
+                    table = table + "_cold"
 
         query_params = self._get_scan_query_params(table, topic, row_id, time_start=dataApiTimeFmt(start_time),
                                                    time_end=dataApiTimeFmt(end_time), columns=columns)
@@ -282,7 +287,7 @@ class HbaseClient(object):
         """
         query_params = {'batch_size': 100000}
         # HBase prefix filter, 用於過濾主題.
-        prefix = self.get_rowkey_prefix(table, topic)
+        prefix = self.get_rowKey_prefix(table, topic)
         query_params['filter'] = HBASE_PREFIX_FILTER.format(hashlib.sha256(prefix.encode('utf-8')).hexdigest()[:16])
 
         row_ids = ([] if row_id is None or len(row_id) == 1 else row_id)
@@ -295,11 +300,11 @@ class HbaseClient(object):
             time_start = time_end = sys.maxsize - int(default_time_diff)
         if time_start:
             if all(i == '0' for i in row_id):
-                query_params['row_stop'] = bytes(self.get_row_key(prefix, time_start, len(row_id) * "9"), "utf-8")
+                query_params['row_stop'] = bytes(self.get_rowKey(prefix, time_start, len(row_id) * "9"), "utf-8")
             else:
-                query_params['row_stop'] = bytes(self.get_row_key(prefix, time_start, row_id), "utf-8")
+                query_params['row_stop'] = bytes(self.get_rowKey(prefix, time_start, row_id), "utf-8")
         if time_end:
-            query_params['row_start'] = bytes(self.get_row_key(prefix, time_end, row_id), "utf-8")
+            query_params['row_start'] = bytes(self.get_rowKey(prefix, time_end, row_id), "utf-8")
         # 根據row ID查詢數據, 使用row filter.
         if not all(i == '0' for i in row_id):
             query_params['filter'] += ' AND ' + HBASE_ROW_SUBSTR_FILTER.format(

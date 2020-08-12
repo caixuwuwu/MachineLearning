@@ -40,7 +40,7 @@ RUN curl -sSL "http://mirrors.tuna.tsinghua.edu.cn/apache/thrift/$THRIFT_VERSION
     && pip install --upgrade pip \
     && pip install --no-cache-dir  --disable-pip-version-check scikit-learn==0.20.0 pandas==0.25.3 xgboost==0.80 \
     requests==2.22.0 happybase==1.2.0 redis==3.3.11 python-dateutil==2.8.1 s2sphere==0.2.5 thrift==0.11.0 \
-    pymysql==0.8.0 SQLAlchemy arrow==0.12.1 oss2==2.9.0 tensorflow==2.2.0 \
+    pymysql==0.8.0 SQLAlchemy arrow==0.12.1 oss2==2.9.0 tensorflow==2.2.0 tensorflowonspark\
     && rm -rf ~/.cache/pip
 
 ## Download and Install xgboost

@@ -28,5 +28,5 @@ class SgConfig:
     receive_coordinate = ["114.236124,22.321017", "114.159124,22.243969", "114.241510,22.267104"]
     tasker_coordinate = ["114.229500,22.314137", "114.139320,22.253180", "114.239540,22.268112"]
 
-from apis.api_client import ApiClient
+from client.api_client import ApiClient
 tasker = list(ApiClient().client.get_data("tasker", "tasker_order_num").id)

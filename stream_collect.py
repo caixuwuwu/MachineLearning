@@ -5,15 +5,12 @@ import argparse
 import arrow
 import pandas as pd
 import traceback
-from apis.api_client import ApiClient
+from client.api_client import ApiClient
 from configs.ConfManage import ConfManage
-from apis.osrm_api_client import OsrmApiClient
 from helpers.logger import Logger
 from helpers.pickler import delete_pickle, load_pickle, save_pickle
-from helpers.simple_http_client import Unauthorized
-from helpers.timer import get_run_time, DATA_API_ARROW_FORMAT, LOGGABLE_ARROW_FORMAT as loggable
-from helpers.parallel import multi_thread
-from helpers.utils import *
+from client.SimpleHttpClient import Unauthorized
+from helpers.timer import get_run_time, LOGGABLE_ARROW_FORMAT as loggable
 
 client = ApiClient()
 

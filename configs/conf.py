@@ -19,11 +19,12 @@ ZONE = os.environ.get('ZONE', 'gd')
 # 缓存配置
 CACHE_TYPE = os.environ.get("CACHE_TYPE", 'redis') # redis,local
 CACHE_AGE = os.getenv("CACHE_AGE", 30)
+CACHE_UPDATE = os.getenv("CACHE_UPDATE", 2)
 PICKLE_CACHE_EXPIRE = os.environ.get('PICKLE_CACHE_EXPIRE', 3600)
 AREA_CACHE_EXPIRE = os.environ.get('AREA_CACHE_EXPIRE', 3600) #地区缓存时间
 
 # 数据采集方式
-API_TYPE = os.environ.get("API_TYPE", "HBase")
+API_TYPE = os.environ.get("API_TYPE", "HBase")  # URL
 
 # 模型补时需要的参数
 P3 = os.environ.get('P3', 1)
