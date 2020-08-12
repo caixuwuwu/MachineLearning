@@ -2,59 +2,40 @@
 # coding:utf-8
 """eat base"""
 import importlib
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABC, abstractmethod
 from sklearn.model_selection import train_test_split
-from helpers.learner import Model
-from configs import conf
-from helpers.logger import Logger
-from helpers.pickler import save_pickle, load_pickle
 from sklearn import metrics
 import pandas as pd
 import numpy as np
 
+from helpers.learner import Model
+from configs import conf
+from helpers.logger import Logger
+from helpers.pickler import save_pickle, load_pickle
 
-class Base:
+
+class Base(ABC):
     """Abstract Base class used to declare functions in all other model classes"""
-    __metaclass__ = ABCMeta
 
-    def __init__(self):
+    def __init__(self, estimator, target, below_loss_margin, over_loss_margin, limit_loss_N):
+        self.estimator = estimator
+        self.target = target
+        self.below_loss_margin = below_loss_margin
+        self.over_loss_margin = over_loss_margin
+        self.limit_loss_N = limit_loss_N
         self.logger = Logger.get_instance(conf.LOG_BASE_NAME)
-        setup_act = 'setup'
-        if hasattr(self, setup_act):
-            getattr(self, setup_act)()
-
-    @abstractproperty
-    def estimator(self):
-        """预测器"""
-        pass
-
-    @abstractproperty
-    def target(self):
-        """预测目标"""
-        pass
 
     @abstractmethod
-    def below_loss_margin(self):
-        """小于损失的边界值"""
-        pass
-    @abstractmethod
-    def over_loss_margin(self):
-        """大于损失的边界值"""
-        pass
-
-    def limit_loss_N(self):
-        """N分钟准确率的界限值N"""
-        pass
-
     def amend_time(self, test_data):
         """补时"""
         pass
 
-    @abstractproperty
+    @abstractmethod
     def features(self):
         """预测特征"""
         pass
 
+    @abstractmethod
     def features_savedb(self):
         pass
 
@@ -63,6 +44,7 @@ class Base:
         """数据过滤"""
         pass
 
+    @abstractmethod
     def etl(self, data):
         """数据处理"""
         return data
@@ -184,12 +166,15 @@ class Base:
     def group_metric(self, total_data, valid_data, cols, model, prediction_date):
         """
 
-        :param test_data 测试总数据
-        :param valid_data: 有效数据
-        :param cols: 聚合特征
-        :param model: 模型名
-        :param prediction_date: 日期
-        :return:
+        Args:
+            total_data: 测试总数据
+            valid_data: 有效数据
+            cols: 聚合特征
+            model: 模型名
+            prediction_date: 日期
+
+        Returns:
+
         """
         df_total = total_data.groupby(cols)['id'].count().reset_index()
         df_total = df_total.rename(columns={'id': 'total_count'})
