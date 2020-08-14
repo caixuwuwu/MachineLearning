@@ -16,7 +16,7 @@ RUN apt-get update \
     tar \
     tzdata \
     git \
-    && apt-get clean
+    && apt-get clean \
     && cp /usr/share/zoneinfo/${TIME_ZONE} /etc/localtime \
     && echo "${TIME_ZONE}" > /etc/timezone
 
@@ -57,14 +57,14 @@ RUN ln -s locale.h /usr/include/xlocale.h && \
     rm -rf /usr/src/xgboost
 
 ## Download and Install LightGBM
-RUN ENV CC gcc \
-    && ENV CXX g++ \
-    && cd /usr/src \
+ENV CC gcc
+ENV CXX g++ 
+RUN cd /usr/src \
     && git clone --recursive https://github.com/Microsoft/LightGBM \
     && cd /usr/src/LightGBM \
     && mkdir build; cd build \
     && cmake .. \
     && make -j4 \
     && cd /usr/src/LightGBM/python-package; python setup.py install \
-    rm -r /root/.cache && \
-    rm -rf /usr/src/LightGBM
+    && rm -r /root/.cache \
+    && rm -rf /usr/src/LightGBM

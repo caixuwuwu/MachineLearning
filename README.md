@@ -165,8 +165,8 @@ database "Data source" {
 
 You can either use the above Dockerfiles to create two base images as followed (commands run at root-folder):
 
-    docker build --f Docker/base/Dockerfile --tag kinming_eta_base . 
-    docker build --f Docker/xgb/Dockerfile --tag kinming_eta_xgb . 
+    docker build -f Docker/base/Dockerfile --tag kinming_eta_base . 
+    docker build -f Docker/xgb/Dockerfile --tag kinming_eta_xgb . 
     docker build --tag kinming_eta -f Docker/Dockerfile . 
 
 
