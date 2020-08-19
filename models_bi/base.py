@@ -10,7 +10,7 @@
 # HISTORY:
 #*************************************************************
 """Module defining abstract Base class used to connect with MySQL Models"""
-from abc import ABCMeta, abstractproperty
+from abc import ABC, abstractmethod
 from pandas import read_sql
 from sqlalchemy import create_engine, exc, Table
 from sqlalchemy.orm import sessionmaker
@@ -18,10 +18,10 @@ from sqlalchemy.schema import MetaData
 import warnings
 from configs import conf
 
-class Base(object):
+
+class Base(ABC):
     """Abstract Base class used to declare functions in all other model classes"""
-    __metaclass__ = ABCMeta
-    
+
     def __init__(self, mode='write'):
         if mode == 'write':
             sql_config = {
@@ -41,17 +41,33 @@ class Base(object):
         try:
             self.sql_conn.connect()
         except exc.DBAPIError as err:
-            raise AttributeError('Cannot retrieve table: {table_name} caused by {err}' \
-            .format(table_name=self.__class__.table_name, err=err))
+            raise AttributeError('Cannot retrieve table: {table_name} caused by {err}'.format(
+                table_name=self.__class__.table_name, err=err))
+
+    @abstractmethod
+    @property
+    def db_name(self):
+        """Abstract Property: db_name"""
+        pass
+
+    @property
+    @abstractmethod
+    def columns_msg(self):
+        return dict()
+
+    @property
+    @abstractmethod
+    def table_name(self):
+        """Abstract Property: table_name"""
+        pass
 
     def create_if_not_exists(self):
         """Create table if not already exists."""
         warnings.filterwarnings('ignore', category=Warning)
         sql = 'CREATE TABLE IF NOT EXISTS {table_name} ('.format(table_name=self.table_name)
-        sql += ', '.join([
-            '%s %s' % (column, self._types[_].upper()) + \
-                (' %s' % self._defs[_].upper() if len(self._defs[_]) > 0 else '') \
-                    for _, column in enumerate(self.columns)])
+        sql += ', '.join(['%s %s' % (column, self.columns_msg[column][0].upper()) +
+                          (' %s' % self.columns_msg[column][1].upper()
+                           if len(self.columns_msg[column][1]) > 0 else '') for column in self.columns_msg])
         sql += ');'
         if self.sql_conn is not None:
             try:
@@ -62,10 +78,17 @@ class Base(object):
                 return False
 
     def insert_data(self, data):
-        """Insert Data into Table"""
+        """
+        Insert Data into Table
+        Args:
+            data: DataFrame
+
+        Returns: len(data)
+
+        """
         if data is not None and self.sql_conn is not None:
             records = data.to_dict(orient='records')
-            metadata = MetaData(bind=self.sql_conn,reflect=True)
+            metadata = MetaData(bind=self.sql_conn, reflect=True)
             table = Table(self.__class__.table_name, metadata, autoload=True)
             # Open the session
             Session = sessionmaker(bind=self.sql_conn)
@@ -78,31 +101,6 @@ class Base(object):
         else:
             return -1
 
-    @abstractproperty
-    def db_name(self):
-        """Abstract Property: db_name"""
-        pass
-
-    @abstractproperty
-    def table_name(self):
-        """Abstract Property: table_name"""
-        pass
-
-    @abstractproperty
-    def _types(self):
-        """Abstract Property: _types"""
-        pass
-
-    @abstractproperty
-    def _defs(self):
-        """Abstract Property: _defs"""
-        pass
-
-    @abstractproperty
-    def columns(self):
-        """Abstract Property: columns"""
-        pass
-
     def drop_table(self):
         sql = 'DROP TABLE {table_name};'.format(table_name=self.__class__.table_name)
         try:
@@ -114,20 +112,22 @@ class Base(object):
 
     def list_tables(self):
         sql = 'SELECT `TABLE_NAME` FROM `INFORMATION_SCHEMA`.`TABLES`;'
-        return read_sql(sql=sql, con=self.sql_conn).values.flatten()
+        return read_sql(sql=sql, con=self.sql_conn).values
 
+    @db_name.getter
     def get_db_name(self):
         """Getter for abstract db_name"""
-        return self.__class__.db_name or ''
-        
+        return self.db_name or ''
+
+    @table_name.getter
     def get_table_name(self):
         """Getter for abstract table_name"""
-        return self.__class__.table_name or ''
+        return self.table_name or ''
 
     def get_columns(self):
         sql = 'SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` \
                 WHERE `TABLE_NAME` = \'{table_name}\';'.format(table_name=self.get_table_name())
-        return read_sql(sql=sql, con=self.sql_conn).values.flatten()
+        return read_sql(sql=sql, con=self.sql_conn).values
 
     def fetch_one(self):
         sql = 'SELECT * FROM `{table_name}` LIMIT 1'.format(table_name=self.get_table_name())
