@@ -4,13 +4,12 @@
 # FILENAME: 	 SimpleHttpClient.py
 # VERSION: 	 1.0
 # CREATED: 	 2018-02-13 15:19
-# AUTHOR: 	 Aekasitt Guruvanich <aekazitt@gmail.com>
+# AUTHOR: 	 Xuwu Cai <caixuwu@outlook.com>
 # DESCRIPTION:
 #
 # HISTORY:
 # *************************************************************
 """Module defining SimpleHttpClient class"""
-import json
 import sys
 import os
 import requests

@@ -10,12 +10,13 @@
 # HISTORY:
 #*************************************************************
 """Module defining abstract Base class used to connect with MySQL Models"""
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 from pandas import read_sql
 from sqlalchemy import create_engine, pool
 # from sqlalchemy.orm import sessionmaker
 from configs import conf
 from configs.ConfManage import ConfManage
+
 
 class Base(object):
     """Abstract Base class used to declare functions in all other model classes"""
@@ -36,17 +37,18 @@ class Base(object):
         #                               poolclass=pool.QueuePool, pool_recycle=450)
         # self.sql_pool = sessionmaker(bind=self.engine)()
 
-    @abstractmethod
     def insert_data(self, data):
         """Insert Data into Table"""
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def db_name(self):
         """Abstract Property: db_name"""
         pass
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def table_name(self):
         """Abstract Property: table_name"""
         pass
@@ -55,13 +57,15 @@ class Base(object):
         sql = 'SELECT `TABLE_NAME` FROM `INFORMATION_SCHEMA`.`TABLES`;'
         return read_sql(sql=sql, con=self.sql_pool.connect()).values.flatten()
 
+    @db_name.getter
     def get_db_name(self):
         """Getter for abstract db_name"""
-        return self.__class__.db_name or ''
-        
+        return self.db_name or ''
+
+    @table_name.getter
     def get_table_name(self):
         """Getter for abstract table_name"""
-        return self.__class__.table_name or ''
+        return self.table_name or ''
 
     def get_columns(self):
         sql = 'SELECT `COLUMN_NAME` FROM `INFORMATION_SCHEMA`.`COLUMNS` \

@@ -8,7 +8,7 @@ from sklearn import metrics
 import pandas as pd
 import numpy as np
 
-from helpers.learner import Model
+from estimator.learner import Model
 from configs import conf
 from helpers.logger import Logger
 from helpers.pickler import save_pickle, load_pickle

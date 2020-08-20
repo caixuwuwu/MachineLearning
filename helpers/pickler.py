@@ -17,7 +17,7 @@ from configs.ConfManage import ConfManage
 from helpers.logger import Logger
 from helpers.cache import Cache
 from sklearn.externals import joblib
-from models.po_cache_ret import POCacheRet
+from helpers.po_cache_ret import POCacheRet
 
 logger = Logger.get_instance(ConfManage.getString("LOG_BASE_NAME"))
 PICKLE_FOLDER = ConfManage.getString("PICKLE_FOLDER")

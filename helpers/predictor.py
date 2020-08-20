@@ -3,23 +3,16 @@
 
 """预测模块"""
 
-import numpy as np
-import pandas as pd
-import xgboost as xgb
-
-from helpers.learner import Model
-from helpers.timer import timepiece
+from estimator.learner import Model
 from client.api_client import ApiClient
-from client.OsrmApi import OsrmApiClient
+from client.OsrmApi import OsrmApi
 from configs.ConfManage import ConfManage
-from helpers.parallel import multi_thread
 from helpers.pickler import load_pickle_cache
 from helpers.logger import Logger
-from helpers.utils import *
 
 logger = Logger.get_instance(ConfManage.getString("LOG_BASE_NAME"))
 client = ApiClient()
-osrm_api_client = OsrmApiClient()
+osrm_api_client = OsrmApi()
 
 
 def get_pickle(estimator_name, target):
