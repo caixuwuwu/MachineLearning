@@ -4,12 +4,12 @@ Machine Learning
 
 本项目为机器学习项目，
 ## 项目算法
-目前项目使用算法为xgboost，并内嵌LightGBM，AdaBoost，gradient_boost，decision_tree（决策树），random_forest（随机森林），
-K（K近邻），logistic（逻辑回归），SVR（支持向量回归）等多种算法，可适应监督性机器学习(回归与分类)场景应用。
+目前项目使用算法内嵌有xgboost，LightGBM，AdaBoost，gradient_boost，decision_tree（决策树），random_forest（随机森林），DBScan，
+K（K近邻），logistic（逻辑回归），SVR（支持向量回归），deep_learning等多种算法，可适应监督性机器学习(回归与分类),及聚类场景应用。
 
 ## 技术栈：
 开发语言：Python
-数据库：Hbase，Mysql，Redis
+数据库：Hbase，Mysql，Redis，hive
 RPC：Thrift
 
 ## thrift 接口调用
@@ -44,8 +44,7 @@ PredictionResult predictTime(1: list<Params> queries) \
 predictQuoteTime :
     extra_data: Map(
         "box_size": "UNKNIWN", 
-        "order_value": "209", 
-        "product": "FDP-LONG"
+        "order_value": "209" 
 )
 ```
 
@@ -169,14 +168,6 @@ You can either use the above Dockerfiles to create two base images as followed (
     docker build -f Docker/xgb/Dockerfile --tag kinming_eta_xgb . 
     docker build --tag kinming_eta -f Docker/Dockerfile . 
 
-
-## 提供thrift端口地址信息
-
-```shell
-Release: -e 47.56.204.88 -p 9090
-rc: -e 47.56.90.144 -p 19090
-sg-release: -e ap2-eta.ks-it.co -p 9090
-```
 
 ## 项目相关命令释放
 

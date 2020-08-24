@@ -152,7 +152,7 @@ class Base(ABC):
             path = "pickles/{app_mode}-{zone}-{estmator_key}".format(app_mode=conf.APP_MODE, zone=conf.ZONE,
                                                                      estmator_key=estmator_key)
             estimator = xgb.Booster(model_file=path)
-            dtest = xgb.DMatrix(x_test)
+            dtest = xgb.DMatrix(x_test.astype(float), nthread=-1)
             pre_data = estimator.predict(dtest)
         else:
             estimator = load_pickle(estmator_key, using_joblib=True)
