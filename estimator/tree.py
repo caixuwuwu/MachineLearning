@@ -10,13 +10,6 @@
 # HISTORY:
 # *************************************************************
 from itertools import chain
-import logging
-from sklearn.model_selection import GridSearchCV
-from helpers.logger import Logger
-from configs.ConfManage import ConfManage
-from helpers.pickler import save_pickle, load_pickle
-from helpers.cache import Cache
-import xgboost as xgb
 
 
 def gen_params(estimator, mode='basic'):

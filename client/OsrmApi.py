@@ -15,8 +15,8 @@ import pandas as pd
 
 from configs.ConfManage import ConfManage
 from client.SimpleHttpClient import SimpleHttpClient
-from helpers.logger import Logger
-from helpers.s2 import S2
+from tools.logger import Logger
+from tools.s2 import S2
 
 logger = Logger.get_instance(ConfManage.getString("LOG_BASE_NAME"))
 

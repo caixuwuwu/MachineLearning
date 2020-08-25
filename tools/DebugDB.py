@@ -4,9 +4,9 @@
 import argparse
 import arrow
 from configs.ConfManage import ConfManage
-from helpers.logger import Logger
-from preprocess import preprocess
-from process import process
+from tools.logger import Logger
+from core.preprocess import preprocess
+from core.process import process
 
 logger = Logger.get_instance(ConfManage.getString("LOG_CRON_NAME"))
 parser = argparse.ArgumentParser()

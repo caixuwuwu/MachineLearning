@@ -1,7 +1,7 @@
 import unittest
-from collect import *
+from core.collect import *
 import arrow
-from numpy import nan
+
 order_timelines_data = [{'accept': 0.07, 'actual_delivery_time': 22.93, 'actual_showup_time': 2.1, 'actual_total_time': 24.65, 'actual_work_time': 24.57, 'area_id': 31, 'child_area_id': 0, 'default_service_type': 2, 'delivery_sign': 24.38, 'id': 2020042271242260, 'position_type_id': 2, 'region': 'HK', 'showup': 0.95, 'showup_bluetooth': 0.0, 'showup_gps': 0.95, 'showup_manual': 0.0, 'tasker_id': 852000828, 'time': '20200422141714', 'total': 26.1, 'user_id': 100000109, 'work': 26.03},
                         {'accept': 4.0, 'actual_delivery_time': 11.15, 'actual_showup_time': 7.73, 'actual_total_time': 27.45, 'actual_work_time': 23.45, 'area_id': 10, 'child_area_id': 0, 'default_service_type': 2, 'delivery_sign': 15.35, 'id': 2020042275639687, 'position_type_id': 2, 'region': 'HK', 'showup': 4.65, 'showup_bluetooth': 0.0, 'showup_gps': 4.65, 'showup_manual': 0.0, 'tasker_id': 8970, 'time': '20200422141713', 'total': 31.65, 'user_id': 100000037, 'work': 27.65},
                         {'accept': 13.7, 'actual_delivery_time': 10.53, 'actual_showup_time': 12.75, 'actual_total_time': 37.67, 'actual_work_time': 23.97, 'area_id': 36, 'child_area_id': 187, 'default_service_type': 2, 'delivery_sign': 11.9, 'id': 2020042268286952, 'position_type_id': 10, 'region': 'HK', 'showup': 12.82, 'showup_bluetooth': 0.0, 'showup_gps': 12.82, 'showup_manual': 0.0, 'tasker_id': 852003658, 'time': '20200422141632', 'total': 39.03, 'user_id': 100000142, 'work': 25.33}]

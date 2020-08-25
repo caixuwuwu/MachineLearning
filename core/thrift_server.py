@@ -12,7 +12,7 @@
 """Module defining class ETAThriftServer & EstimateTaskDurationsHandler"""
 
 from configs.ConfManage import ConfManage
-from helpers.eta_thrift_handler import EstimateTaskDurationsHandler
+from core.eta_thrift_handler import EstimateTaskDurationsHandler
 import os
 import signal
 try:
@@ -27,7 +27,7 @@ except ImportError:
 
 import sys
 import glob
-from helpers.logger import Logger
+from tools.logger import Logger
 requirements_logger = Logger.get_instance(ConfManage.getString("LOG_BASE_NAME"))
 try:
     sys.path.append('gen-py')

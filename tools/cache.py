@@ -14,7 +14,7 @@ import threading
 import pandas
 from configs.ConfManage import ConfManage
 import redis
-from helpers.logger import Logger
+from tools.logger import Logger
 from redis.exceptions import ConnectionError, TimeoutError
 from random import randrange
 
@@ -180,13 +180,16 @@ class Cache:
 
     CACHE_TYPE_REDIS = 'Redis'
 
-    def __init__(self):
-        if Cache.cache_type == "redis":
-            self.client = RedisCache()
-        elif Cache.cache_type == "local":
-            self.client = LocalCache()
+    def __init__(self, cache_type=None):
+        if cache_type is None:
+            if Cache.cache_type == "redis":
+                self.client = RedisCache()
+            elif Cache.cache_type == "local":
+                self.client = LocalCache()
+            else:
+                raise Exception('1303:CACHE_TYPE set error, must be "local" or "redis".')
         else:
-            raise Exception('1303:CACHE_TYPE set error, must be "local" or "redis".')
+            self.client = cache_type
 
     @staticmethod
     def get_instance(cache_type=None):
@@ -202,20 +205,24 @@ class Cache:
             Cache._instance[cache_type] = instance
         return Cache._instance[cache_type]
 
-    def toCache(self, cacheKey, age=ConfManage.getInt("CACHE_AGE")):
+    def toCache(self, cacheKey=None, age=ConfManage.getInt("CACHE_AGE")):
         def getData(func):
             def save(*args, **kwargs):
+                defineKey = None
+                if "cache_key" in kwargs:
+                    defineKey = kwargs["cache_key"]
+                actucal_key = defineKey if defineKey else cacheKey
                 retry = 4
                 while True:
-                    data = self.client.get(cacheKey)
+                    data = self.client.get(actucal_key)
                     if data is None:
-                        if self.client.set_mutex(cacheKey, 2):
+                        if self.client.set_mutex(actucal_key, 2):
                             try:
                                 data = func(*args, **kwargs).to_json()
-                                self.client.set(cacheKey, data, age)
-                                self.client.delete(cacheKey + "_mutex")
+                                self.client.set(actucal_key, data, age)
+                                self.client.delete(actucal_key + "_mutex")
                             except Exception:
-                                self.client.delete(cacheKey + "_mutex")
+                                self.client.delete(actucal_key + "_mutex")
                                 raise
                             break
                         else:
@@ -225,24 +232,22 @@ class Cache:
                                 logger.error("Cache msg: Get cache data fail while retry 4 times")
                                 raise Exception("1302:Get cache data fail while retry 4 times")
                     else:
-                        extime = self.client.ttl(cacheKey)
+                        extime = self.client.ttl(actucal_key)
                         if extime <= 8:
-                            if self.client.set_mutex(cacheKey, 2):
+                            if self.client.set_mutex(actucal_key, 2):
                                 try:
                                     data = func(*args, **kwargs).to_json()
-                                    self.client.set(cacheKey, data, age)
-                                    self.client.delete(cacheKey + "_mutex")
+                                    self.client.set(actucal_key, data, age)
+                                    self.client.delete(actucal_key + "_mutex")
                                 except Exception:
                                     logger.error("Cache msg:get {} failed, return old date".format(kwargs["topic"]))
-                                    self.client.delete(cacheKey + "_mutex")
+                                    self.client.delete(actucal_key + "_mutex")
                                     return data
                                 break
                         else:
                             break
                 return pandas.read_json(data)
-
             return save
-
         return getData
 
 

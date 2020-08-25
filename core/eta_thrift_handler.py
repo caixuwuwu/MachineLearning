@@ -16,10 +16,11 @@ import json
 from datetime import datetime
 import uuid
 
-from helpers.predictor import *
-from helpers.cache import Cache
-from helpers.pickler import reload_pickle_cache, init_pickle_cache
-from helpers.po_cache_ret import POCacheRet
+from core.predictor import *
+from tools.cache import Cache
+from tools.pickler import reload_pickle_cache, init_pickle_cache
+from tools.po_cache_ret import POCacheRet
+from tools.logger import Logger
 
 
 if sys.version_info[:2] in [(2, 6), (2, 7)]:
@@ -82,7 +83,6 @@ class EstimateTaskDurationsHandler(object):
         results = []
         res = PredictionResult(request_id=str(request_id), error=1, err_msg="please code it", data=results)
         return res
-
 
     def listKeys(self):
         logger.info('listKeys')

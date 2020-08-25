@@ -5,7 +5,7 @@ from thrift.protocol import TBinaryProtocol
 from thrift.Thrift import TApplicationException
 from thrift.transport import TSocket, TTransport
 from configs.ConfManage import ConfManage
-from helpers.logger import Logger
+from tools.logger import Logger
 
 logger = Logger.get_instance(ConfManage.getString("LOG_BASE_NAME"))
 

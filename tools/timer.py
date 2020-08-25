@@ -13,7 +13,7 @@
 import arrow
 import time
 from datetime import datetime, date
-from helpers.logger import Logger
+from tools.logger import Logger
 from configs.ConfManage import ConfManage
 
 TIME_FORMAT = '%Y-%m-%d %H:%M:%S'

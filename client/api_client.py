@@ -10,10 +10,10 @@
 #*************************************************************
 
 from client.HBaseClient import HbaseClient
-from client.DataApi import DataApiClient
+from client.SimpleHttpClient import SimpleHttpClient
 from configs.ConfManage import ConfManage
-from helpers.cache import Cache
-from helpers.logger import Logger
+from tools.cache import Cache
+from tools.logger import Logger
 from pandas import read_json
 import time
 cache = Cache().client
@@ -45,7 +45,7 @@ class ApiClient(object):
 
     @staticmethod
     def dataapi_client():
-        return DataApiClient()
+        return SimpleHttpClient()
 
     def set_client(self, client):
         self.client = client

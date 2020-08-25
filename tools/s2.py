@@ -2,9 +2,9 @@
 # coding: utf-8
 
 from configs.ConfManage import ConfManage
-from helpers.logger import Logger
+from tools.logger import Logger
 from s2sphere import LatLng, CellId, Cell
-from helpers.cache import Cache
+from tools.cache import Cache
 
 
 class S2(object):

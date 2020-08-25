@@ -63,7 +63,7 @@ class Logger(object):
                     'level': ConfManage.getInt("LOG_LEVEL"),
                     'class': 'logging.handlers.TimedRotatingFileHandler',
                     'when': "D",
-                    # 最多保留20份文件
+                    # 最多保留10份文件
                     'backupCount': 10,
                     # If delay is true,
                     # then file opening is deferred until the first call to emit().

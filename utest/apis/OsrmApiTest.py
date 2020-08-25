@@ -11,14 +11,14 @@
 import json
 import unittest
 
-from client.OsrmApi import OsrmApiClient
+from client.OsrmApi import OsrmApi
 from configs.conf import OSRM_API_DRIVING_ROUTE, OSRM_API_WALKING_ROUTE, ZONE
 
 
 class OsrmApiClientTest(unittest.TestCase):
 
     def setUp(self):
-        self.osrmClient = OsrmApiClient()
+        self.osrmClient = OsrmApi()
         self.DRIVING = "driving"
         self.WALKING = "walking"
         self.ZONE = ZONE

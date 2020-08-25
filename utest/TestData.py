@@ -7,7 +7,6 @@
 '''
 from utest.helpers.PredictTest import PredictTest
 from utest.CollectTest import CollectTest
-from utest.StreamCollect import StreamCollect
 import unittest as ut
 
 
@@ -15,7 +14,6 @@ if __name__ == "__main__":
     # unittest.main()
     suite=ut.TestSuite()
     suite.addTests(ut.makeSuite(CollectTest))
-    suite.addTests(ut.makeSuite(StreamCollect))
     suite.addTests(ut.makeSuite(PredictTest))
     runner = ut.TextTestRunner(verbosity=1)
     runner.run(suite)

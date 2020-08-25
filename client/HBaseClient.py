@@ -20,8 +20,8 @@ import arrow
 from pandas import DataFrame
 
 from client.BaseClient import BaseClient
-from helpers.timer import dataApiTimeFmt, timepiece
-from helpers.logger import Logger
+from tools.timer import dataApiTimeFmt, timepiece
+from tools.logger import Logger
 from configs.ConfManage import ConfManage
 from pandas.io.json import json_normalize
 import pkg_resources as _pkg_resources
