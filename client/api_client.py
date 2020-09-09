@@ -105,6 +105,34 @@ class ApiClient(object):
                     break
         return read_json(data)
 
+    def collect_batch_data(self, start_time, end_time, table, topic, columns=None, record_path=None, meta=None):
+        st = start_time
+        et = end_time
+        data_df = pd.DataFrame()
+        hours_interval = int(24 / ENV_DATA_API_TIMERANGE) if 24 % ENV_DATA_API_TIMERANGE == 0 else 12
+        while st < et:
+            snt = st.shift(hours=hours_interval)
+            data_df = data_df.append(
+                self.get_data(table=table, topic=topic, start_time=st.shift(seconds=1), end_time=snt, columns=columns,
+                                record_path=record_path, meta=meta))
+            st = snt
+        return data_df
+
+    def fetch_data(self, start_time, end_time, table, topic, columns=None, record_path=None, meta=None,
+                   save_file_prefix="order_accept_"):
+        df = load_pickle(save_file_prefix + topic)
+        if df is None:
+            df = self.collect_batch_data(start_time=start_time, end_time=end_time, table=table, topic=topic,
+                                         columns=columns, record_path=record_path, meta=meta)
+            save_pickle(df, save_file_prefix + topic)
+        else:
+            if len(df) == 0:
+                df = self.collect_batch_data(start_time=start_time, end_time=end_time, table=table, topic=topic,
+                                        columns=columns, record_path=record_path, meta=meta)
+                save_pickle(df, save_file_prefix + topic)
+        logger.info('Fetch %s (Count): %d' % (topic, len(df)))
+        return df
+
 
 if __name__ == "__main__":
     print(ApiClient().get_client())

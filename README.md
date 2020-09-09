@@ -1,6 +1,6 @@
 Machine Learning
 ================
-[![platform](https://img.shields.io/badge/python-3.5-green.svg)]() [![platform](https://img.shields.io/badge/python-3.6-green.svg)]()
+[![platform](https://img.shields.io/badge/python-3.7-green.svg)]() [![platform](https://img.shields.io/badge/python-3.6-green.svg)]()
 
 本项目为机器学习项目，
 ## 项目算法
@@ -8,9 +8,9 @@ Machine Learning
 K（K近邻），logistic（逻辑回归），SVR（支持向量回归），deep_learning等多种算法，可适应监督性机器学习(回归与分类),及聚类场景应用。
 
 ## 技术栈：
-开发语言：Python
-数据库：Hbase，Mysql，Redis，hive
-RPC：Thrift
+- 开发语言：Python
+- 数据库：Hbase，Mysql，Redis，hive
+- RPC：Thrift
 
 ## thrift 接口调用
 ```mermaid
@@ -22,16 +22,14 @@ graph LR
 
 ### 参数说明
 截止本文档更新，目前活跃接口有：
-```
- 
-PredictionResult predictTime(1: list<Params> queries) \
- 
+```thrift
+PredictionResult predictTime(1: list<Params> queries) 
 ```
 #### Params{Model}
 
-1、optional map<string,string> extra_data;\
-2、optional list<string> extra_keys;\
-3、optional bool test_mode; // 非测试唔用
+- optional map<string,string> extra_data;\
+- optional list<string> extra_keys;\
+- optional bool test_mode; // 非测试唔用
 
 |   輸入参数   |  说明                                                                       |
 | ------------ | -------------------------------------------------------------------------------- |
@@ -50,10 +48,14 @@ predictQuoteTime :
 
 #### PredictionResult结构说明：
 
-1: string request_id; \
-2: int error; \
-3: optional string err_msg;\
-4: list<Data> data
+```thrift
+struct PredictionResult {
+    1: string request_id; // sys.maxsize-timeshamp
+    2: int error;
+    3: optional string err_msg;
+    4: list<Data> data;
+}
+```
 
 |     参数     |  说明                                                                            |
 | ------------ | -------------------------------------------------------------------------------- |
@@ -63,9 +65,13 @@ predictQuoteTime :
 |    data      | 请求结果结构体，具体参照以下Data说明。|
 
 #### Data 结构说明：
-1: double result;\
-2: map<string,string> extra_data; // 该值可容纳其他需求值\
-3: optional map<string,string> features;\
+```thrift
+struct Data {
+    1: double result;
+    2: map<string,string> extra_data; // 该值可容纳其他需求值
+    3: optional map<string,string> features;
+}
+```
 
 |     参数     |  说明                                                                            |
 | ------------ | -------------------------------------------------------------------------------- |
@@ -164,9 +170,9 @@ database "Data source" {
 
 You can either use the above Dockerfiles to create two base images as followed (commands run at root-folder):
 
-    docker build -f Docker/base/Dockerfile --tag kinming_eta_base . 
-    docker build -f Docker/xgb/Dockerfile --tag kinming_eta_xgb . 
-    docker build --tag kinming_eta -f Docker/Dockerfile . 
+>    docker build -f Docker/base/Dockerfile --tag kinming_eta_base . 
+>    docker build -f Docker/xgb/Dockerfile --tag kinming_eta_xgb . 
+>    docker build --tag kinming_eta -f Docker/Dockerfile . 
 
 
 ## 项目相关命令释放
