@@ -87,7 +87,7 @@ class Logger(object):
 
             'loggers': {
                 ConfManage.getString("LOG_BASE_NAME"): {
-                    'handlers': ['thread'],
+                    'handlers': ['process'],
                     'level': ConfManage.getInt("LOG_LEVEL"),
                 },
                 ConfManage.getString("LOG_CRON_NAME"): {
@@ -95,7 +95,7 @@ class Logger(object):
                     'level': ConfManage.getInt("LOG_LEVEL"),
                 },
                 ConfManage.getString("LOG_REQ_NAME"): {
-                    'handlers': ['thread'],
+                    'handlers': ['process'],
                     'level': ConfManage.getInt("LOG_LEVEL"),
                 },
             }
