@@ -17,7 +17,7 @@ import unittest as ut
 
 if __name__ == "__main__":
     # unittest.main()
-    suite=ut.TestSuite()
+    suite = ut.TestSuite()
     suite.addTests(ut.makeSuite(OsrmApiClientTest))
     suite.addTests(ut.makeSuite(HbaseApiTest))
     suite.addTests(ut.makeSuite(CacheTest))
