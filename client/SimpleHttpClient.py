@@ -30,18 +30,20 @@ if sys.version_info[:2] in [(2, 6), (2, 7)]:  # Python 2.6, 2.7
 elif sys.version_info[:2] in [(3, 6), (3, 7)]:  # Python 3.6, 3.7
     # pylint: disable=E0401, E0611, E1101
     import importlib
-
     importlib.reload(sys)
+
 logger = Logger.get_instance(ConfManage.getString("LOG_BASE_NAME"))
 
 
 class SimpleHttpClient(BaseClient):
     """Simple Client defined used to get standardised
     response of HTTP requests"""
+    def __new__(cls, *args, **kwargs): return super.__new__(cls)
 
     def __init__(self, end_point, use_ssl=False):
-        self.end_point = end_point
         self.conn = requests.Session()
+        self.end_point = end_point
+
         if use_ssl:
             self.conn.mount("https://", HTTPAdapter(pool_connections=os.cpu_count() - 1,
                                                     pool_maxsize=ConfManage.getInt("HTTP_MAX_CONNECTIONS"),
@@ -53,9 +55,6 @@ class SimpleHttpClient(BaseClient):
 
     def close(self):
         self.conn.close()
-
-    def __del__(self):
-        self.close()
 
     def get_data(self, method="get", route='/', queries=None, timeout=None, **kwargs):
         url = self.end_point + route
@@ -119,8 +118,8 @@ class SimpleHttpClient(BaseClient):
         调用API,可加table_name值查询,无法用于多条件查询
         :param table
         :param topic: string
-        :param time_start: int eg:20190711000000 查询开始时间
-        :param time_end: 查询终止时间
+        :param start_time: int eg:20190711000000 查询开始时间
+        :param end_time: 查询终止时间
         :param kwargs: table_name值
         :return: pd.DataFrame
         """

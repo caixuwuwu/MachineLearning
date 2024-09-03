@@ -66,9 +66,6 @@ class OsrmApi(object):
             result = {"routes": [{"distance": -1}]}
         return result['routes'][0]["distance"]
 
-    @staticmethod
-    def to_df(distance):
-        return pd.DataFrame({"distance": [float(distance)]})
 
 
 class OsrmApiException(Exception): pass

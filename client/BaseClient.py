@@ -10,16 +10,31 @@
 # HISTORY:
 # *************************************************************
 
-import abc
+from abc import ABCMeta, abstractmethod
+from pandas import DataFrame
 
 
-class BaseClient(abc.ABC):
+class BaseClient(ABCMeta):
+    @abstractmethod
+    def conn(cls): raise NotImplementedError
 
-    @abc.abstractmethod
-    def get_data(self, *args, **kwargs):
+    @abstractmethod
+    def get_data(cls, *args, **kwargs):
         """
         Returns: pandas DataFrame
-
         """
-        pass
+        raise NotImplementedError
 
+    def to_df(cls, data):
+        return DataFrame({"distance": [float(data)]})
+
+    @abstractmethod
+    def close(cls):
+        raise NotImplementedError
+
+    def __del__(self):
+        """
+        基类私有方法，所有实例删除自动处理API链接IO的关闭
+        """
+        self.close()
+        del self.conn

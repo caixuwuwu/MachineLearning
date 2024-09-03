@@ -96,6 +96,9 @@ class RConnectionPool(ConnectionPool):
 
 class HbaseClient(BaseClient):
 
+    def close(self):
+        self.connPool.close()
+
     def __init__(self, host=ConfManage.getString("HBASE_HOST"), port=ConfManage.getInt("HBASE_PORT")):
         self.timezone = ConfManage.getString("ARROW_TIMEZONE")
         self.host = host
